@@ -1,0 +1,94 @@
+import random
+import json
+
+def generatePassword():
+    letterCount = int(input("How many letters would you like?\n"))
+    numberCount = int(input("How many numbers would you like?\n"))
+    charCount = int(input("How many special characters would you like?\n"))
+    
+    uppercase_letters = [chr(i) for i in range(65, 91)]
+    lowercase_letters = [chr(i) for i in range(97, 123)]
+    letters = uppercase_letters + lowercase_letters
+    numbers = [str(i) for i in range(10)]
+    chars = list('!@#$%^&*()-_+=[]{}|\\;:"\'<>,.?/~`')
+    
+    password = []
+
+    for _ in range(letterCount):
+        password.append(random.choice(letters))
+    
+    for _ in range(numberCount):
+        password.append(random.choice(numbers))
+        
+    for _ in range(charCount):
+        password.append(random.choice(chars))
+    
+    random.shuffle(password)
+    password = ''.join(password)
+    return password
+    
+    
+def addInfo():
+    websites = loadInfo()
+    
+    website = input("What website would you like to input your information?\n")
+    username = input("What is the username/email\n")
+    decision = int(input("Would you like to create your own password or have us create one for you?(1 to use your own or 2 for us to create)\n"))
+    
+    if decision == 1:
+        password = input("What is your password?\n")
+    elif decision == 2:
+        password = generatePassword()
+        
+    info = {
+        "website": website,
+        "login": {
+            "username": username,
+            "password": password
+            }
+        }
+    websites.append(info)
+    saveInfo(websites)
+    print("Information Stored!")
+    print("")
+
+def saveInfo(websites):
+    with open("websites.json", "w") as f:
+        json.dump(websites, f, indent=4)
+
+def loadInfo():
+    try:
+        with open("websites.json", "r") as f:
+            websites = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        websites = []
+    return websites
+        
+        
+
+
+def showInfo():
+    websites = loadInfo()
+    if not websites:
+        print("No information stored")
+    
+    for info in websites:
+        print(f"Website: {info["website"]}, Username: {info["login"]["username"]}, Password: {info["login"]["password"]}")
+        
+    print("")
+def main():
+    websites = loadInfo()
+    
+    print("Welcome to the Keychain App!")
+    print("Here you can store all of your login information for different websites.")
+    while True:
+        option = input("What would you like to do?(add, view, or exit)\n").lower()
+        if option == 'add':
+            addInfo()
+        elif option == 'view':
+            showInfo()
+        elif option == 'exit':
+            break
+
+
+main()
